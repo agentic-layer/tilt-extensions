@@ -1,0 +1,48 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+# Increase the default k8s upsert timeout to accommodate CRD installations
+update_settings(k8s_upsert_timeout_secs=300)
+
+def ai_gateway_litellm_operator_install(version="0.1.1"):
+    """
+    Installs the ai gateway litellm operators into your cluster.
+    """
+
+    install_url = "https://github.com/agentic-layer/ai-gateway-litellm-operator/releases/download/v%s/install.yaml"
+
+    wait_cmd = """
+kubectl wait --for=condition=Available --timeout=300s -n ai-gateway-litellm-system deployment/ai-gateway-litellm-controller-manager 1>&2
+"""
+
+    delete_cmd = [
+        "kubectl", "delete", "--ignore-not-found",
+
+        # Kubernetes is prone to deadlocks when you delete CRDs and namespaces at the same time:
+        # - The Namespace controller thinks it's responsible for deleting all resources in its namespace.
+        # - The CRD controller deletes the API routes for deleting resources.
+        # So the namespace controller blocks and eventually times out.
+        #
+        # To prevent this from slowing down 'tilt down', we do a --wait=false when deleting
+        # CRDs+Namespaces together.
+        "--wait=false",
+        "-f", install_url % version
+    ]
+
+    k8s_custom_deploy(
+        'ai-gateway-litellm-operator',
+        deps=[],
+        apply_cmd="""
+set -ex
+kubectl apply -f %s -o yaml
+set +e
+""" % (install_url % version) + wait_cmd,
+        delete_cmd=delete_cmd,
+    )
+
+    k8s_resource(
+        'ai-gateway-litellm-operator',
+        labels=['ai-gateway-litellm-operator'],
+        resource_deps=['ai-gateway-operator']
+    )
