@@ -1,0 +1,45 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+def agent_gateway_krakend_operator_install(version="0.1.4"):
+    """
+    Installs the agent gateway krakend operators into your cluster.
+    """
+
+    install_url = "https://github.com/agentic-layer/agent-gateway-krakend-operator/releases/download/v%s/install.yaml"
+
+    wait_cmd = """
+kubectl wait --for=condition=Available --timeout=300s -n agent-gateway-krakend-operator-system deployment/agent-gateway-krakend-operator-controller-manager 1>&2
+"""
+
+    delete_cmd = [
+        "kubectl", "delete", "--ignore-not-found",
+
+        # Kubernetes is prone to deadlocks when you delete CRDs and namespaces at the same time:
+        # - The Namespace controller thinks it's responsible for deleting all resources in its namespace.
+        # - The CRD controller deletes the API routes for deleting resources.
+        # So the namespace controller blocks and eventually times out.
+        #
+        # To prevent this from slowing down 'tilt down', we do a --wait=false when deleting
+        # CRDs+Namespaces together.
+        "--wait=false",
+        "-f", install_url % version
+    ]
+
+    k8s_custom_deploy(
+        'agent-gateway-krakend-operator',
+        deps=[],
+        apply_cmd="""
+set -ex
+kubectl apply -f %s -o yaml
+set +e
+""" % (install_url % version) + wait_cmd,
+        delete_cmd=delete_cmd,
+    )
+
+    k8s_resource(
+        'agent-gateway-krakend-operator',
+        labels=['agent-gateway-krakend-operator'],
+        resource_deps=['agent-runtime']
+    )

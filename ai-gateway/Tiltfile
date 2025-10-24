@@ -1,0 +1,19 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+def ai_gateway_install():
+    """
+    Deploys an AI Gateway instance into your cluster.
+    """
+
+    # Get the directory of this Tiltfile to reference files relative to the extension
+    extension_dir = os.path.dirname(__file__)
+
+    k8s_yaml(os.path.join(extension_dir, 'ai-gateway.yaml'))
+
+    k8s_resource(
+        'ai-gateway',
+        labels=['ai-gateway'],
+        resource_deps=['ai-gateway-litellm-operator']
+    )
