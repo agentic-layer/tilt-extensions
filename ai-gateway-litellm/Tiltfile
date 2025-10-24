@@ -5,13 +5,35 @@ version_settings(constraint='>=0.23.0')
 # Increase the default k8s upsert timeout to accommodate CRD installations
 update_settings(k8s_upsert_timeout_secs=300)
 
-def ai_gateway_litellm_operator_install(version="0.1.1"):
+# Configure Tilt to work with AI Gateway Operator's custom AiGateway CRDs
+k8s_kind(
+    'AiGateway',
+    # Operator creates pods asynchronously after AiGateway CRD creation and Tilt
+    # must wait for operator-managed pods rather than assuming immediate readiness
+    pod_readiness='wait',
+)
+
+def ai_gateway_litellm_operator_install(version="0.1.1", ai_gateway_version="main"):
     """
     Installs the ai gateway litellm operators into your cluster.
     """
 
     install_url = "https://github.com/agentic-layer/ai-gateway-litellm-operator/releases/download/v%s/install.yaml"
+    crd_base_url = "https://raw.githubusercontent.com/agentic-layer/ai-gateway-operator/%s/config/crd/bases"
 
+    # Deploy AI Gateway CRDs first using local_resource
+    crd_url = crd_base_url % ai_gateway_version
+
+    local_resource(
+        'ai-gateway-crds',
+        cmd="""
+kubectl apply -f {crd_url}/agentic-layer.ai_aigatewayclasses.yaml
+kubectl apply -f {crd_url}/agentic-layer.ai_aigateways.yaml
+""".format(crd_url=crd_url),
+        labels=['ai-gateway-litellm-operator'],
+    )
+
+    # Deploy AI Gateway LiteLLM Operator
     wait_cmd = """
 kubectl wait --for=condition=Available --timeout=300s -n ai-gateway-litellm-system deployment/ai-gateway-litellm-controller-manager 1>&2
 """
@@ -44,5 +66,5 @@ set +e
     k8s_resource(
         'ai-gateway-litellm-operator',
         labels=['ai-gateway-litellm-operator'],
-        resource_deps=['ai-gateway-operator']
+        resource_deps=['cert-manager', 'ai-gateway-crds']
     )
