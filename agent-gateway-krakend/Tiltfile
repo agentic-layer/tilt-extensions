@@ -2,6 +2,14 @@
 
 version_settings(constraint='>=0.23.0')
 
+
+def agent_gateway_krakend_install(version="0.1.4", operator=True, instance=True):
+    if operator:
+        agent_gateway_krakend_operator_install(version=version)
+    if instance:
+        agent_gateway_krakend_instance_install()
+
+
 def agent_gateway_krakend_operator_install(version="0.1.4"):
     """
     Installs the agent gateway krakend operators into your cluster.
@@ -42,4 +50,21 @@ set +e
         'agent-gateway-krakend-operator',
         labels=['agent-gateway-krakend-operator'],
         resource_deps=['agent-runtime']
+    )
+
+
+def agent_gateway_krakend_instance_install():
+    """
+    Deploys an Agent Gateway instance into your cluster.
+    """
+
+    # Get the directory of this Tiltfile to reference files relative to the extension
+    extension_dir = os.path.dirname(__file__)
+
+    k8s_yaml(os.path.join(extension_dir, 'agent-gateway.yaml'))
+
+    k8s_resource(
+        'agent-gateway-krakend',
+        labels=['agent-gateway-krakend'],
+        resource_deps=['agent-gateway-krakend-operator']
     )

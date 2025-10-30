@@ -5,6 +5,9 @@ version_settings(constraint='>=0.23.0')
 # Increase the default k8s upsert timeout to accommodate CRD installations
 update_settings(k8s_upsert_timeout_secs=300)
 
+# Create Kubernetes secrets from environment variables
+load('ext://secret', 'secret_from_dict')
+
 # Configure Tilt to work with AI Gateway Operator's custom AiGateway CRDs
 k8s_kind(
     'AiGateway',
@@ -13,25 +16,19 @@ k8s_kind(
     pod_readiness='wait',
 )
 
-def ai_gateway_litellm_operator_install(version="0.1.1", ai_gateway_version="main"):
+def ai_gateway_litellm_install(version="0.2.0", operator=True, instance=True):
+    if operator:
+        ai_gateway_litellm_operator_install(version=version)
+    if instance:
+        ai_gateway_litellm_instance_install()
+
+
+def ai_gateway_litellm_operator_install(version="0.2.0"):
     """
     Installs the ai gateway litellm operators into your cluster.
     """
 
     install_url = "https://github.com/agentic-layer/ai-gateway-litellm-operator/releases/download/v%s/install.yaml"
-    crd_base_url = "https://raw.githubusercontent.com/agentic-layer/ai-gateway-operator/%s/config/crd/bases"
-
-    # Deploy AI Gateway CRDs first using local_resource
-    crd_url = crd_base_url % ai_gateway_version
-
-    local_resource(
-        'ai-gateway-crds',
-        cmd="""
-kubectl apply -f {crd_url}/agentic-layer.ai_aigatewayclasses.yaml
-kubectl apply -f {crd_url}/agentic-layer.ai_aigateways.yaml
-""".format(crd_url=crd_url),
-        labels=['ai-gateway-litellm-operator'],
-    )
 
     # Deploy AI Gateway LiteLLM Operator
     wait_cmd = """
@@ -66,5 +63,33 @@ set +e
     k8s_resource(
         'ai-gateway-litellm-operator',
         labels=['ai-gateway-litellm-operator'],
-        resource_deps=['cert-manager', 'ai-gateway-crds']
+        resource_deps=['cert-manager', 'agent-runtime'],
+    )
+
+
+def ai_gateway_litellm_instance_install():
+    """
+    Deploys an AI Gateway instance into your cluster.
+    """
+
+    google_api_key = os.environ.get('GOOGLE_API_KEY', '')
+    if not google_api_key:
+        fail('GOOGLE_API_KEY environment variable is required. Please set it in your shell or .env file.')
+
+    k8s_yaml(secret_from_dict(
+        name = "api-key-secrets",
+        namespace = "ai-gateway",
+        # The ai-gateway expects the API key to be called <provider>_API_KEY
+        inputs = { "GEMINI_API_KEY": google_api_key }
+    ))
+
+    # Get the directory of this Tiltfile to reference files relative to the extension
+    extension_dir = os.path.dirname(__file__)
+
+    k8s_yaml(os.path.join(extension_dir, 'ai-gateway.yaml'))
+
+    k8s_resource(
+        'ai-gateway-litellm',
+        labels=['ai-gateway-litellm'],
+        resource_deps=['ai-gateway-litellm-operator']
     )

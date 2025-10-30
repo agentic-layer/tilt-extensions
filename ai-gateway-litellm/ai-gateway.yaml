@@ -3,11 +3,10 @@ kind: Namespace
 metadata:
   name: ai-gateway
 ---
-apiVersion: agentic-layer.ai/v1alpha1
+apiVersion: runtime.agentic-layer.ai/v1alpha1
 kind: AiGateway
 metadata:
-  labels:
-  name: ai-gateway
+  name: ai-gateway-litellm
   namespace: ai-gateway
 spec:
   aiGatewayClassName: litellm
