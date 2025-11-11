@@ -38,6 +38,5 @@ set +e
 
     k8s_resource(
         'cert-manager',
-        labels=['cert-manager'],
         resource_deps=[],
     )

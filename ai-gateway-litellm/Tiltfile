@@ -62,7 +62,7 @@ set +e
 
     k8s_resource(
         'ai-gateway-litellm-operator',
-        labels=['ai-gateway-litellm-operator'],
+        labels=['agentic-layer'],
         resource_deps=['cert-manager', 'agent-runtime'],
     )
 
@@ -90,6 +90,6 @@ def ai_gateway_litellm_instance_install():
 
     k8s_resource(
         'ai-gateway-litellm',
-        labels=['ai-gateway-litellm'],
+        labels=['agentic-layer'],
         resource_deps=['ai-gateway-litellm-operator']
     )

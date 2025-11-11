@@ -56,6 +56,6 @@ set +e
 
     k8s_resource(
         'agent-runtime',
-        labels=['agent-runtime'],
+        labels=['agentic-layer'],
         resource_deps=['cert-manager'],
     )
