@@ -7,13 +7,13 @@ update_settings(k8s_upsert_timeout_secs=300)
 
 # Configure Tilt to work with Agent Runtime Operator's custom Agent CRDs
 k8s_kind(
-    'Agent',
+    '^Agent$',
     # Operator creates pods asynchronously after Agent CRD creation and Tilt
     # must wait for operator-managed pods rather than assuming immediate readiness
     pod_readiness='wait',
 )
 k8s_kind(
-    'ToolServer',
+    '^ToolServer$',
     image_json_path='{.spec.image}',
     pod_readiness='wait',
 )

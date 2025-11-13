@@ -10,7 +10,7 @@ load('ext://secret', 'secret_from_dict')
 
 # Configure Tilt to work with AI Gateway Operator's custom AiGateway CRDs
 k8s_kind(
-    'AiGateway',
+    '^AiGateway$',
     # Operator creates pods asynchronously after AiGateway CRD creation and Tilt
     # must wait for operator-managed pods rather than assuming immediate readiness
     pod_readiness='wait',
@@ -30,7 +30,6 @@ def ai_gateway_litellm_operator_install(version="0.2.0"):
 
     install_url = "https://github.com/agentic-layer/ai-gateway-litellm-operator/releases/download/v%s/install.yaml"
 
-    # Deploy AI Gateway LiteLLM Operator
     wait_cmd = """
 kubectl wait --for=condition=Available --timeout=300s -n ai-gateway-litellm-system deployment/ai-gateway-litellm-controller-manager 1>&2
 """
