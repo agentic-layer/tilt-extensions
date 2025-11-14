@@ -17,8 +17,12 @@ k8s_kind(
     image_json_path='{.spec.image}',
     pod_readiness='wait',
 )
+k8s_kind(
+    '^AgenticWorkforce$',
+    pod_readiness='wait',
+)
 
-def agent_runtime_install(version="0.9.0"):
+def agent_runtime_install(version="0.10.0"):
     """
     Installs the agent-runtime operators into your cluster.
     """
