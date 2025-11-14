@@ -14,7 +14,7 @@ k8s_kind(
     pod_readiness='wait',
 )
 
-def agent_gateway_krakend_install(version="0.1.4", operator=True, instance=True):
+def agent_gateway_krakend_install(version="0.2.0", operator=True, instance=True):
     if operator:
         agent_gateway_krakend_operator_install(version=version)
     if instance:
