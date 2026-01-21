@@ -1,0 +1,28 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+# Increase the default k8s upsert timeout to accommodate CRD installations
+update_settings(k8s_upsert_timeout_secs=300)
+
+load('ext://helm_remote', 'helm_remote')
+
+def librechat_install(version="1.9.3", port='11003'):
+
+    # Get the directory of this Tiltfile to reference files relative to the extension
+    extension_dir = os.path.dirname(__file__)
+
+    helm_remote(
+        'librechat',
+        repo_url='oci://ghcr.io/danny-avila/librechat-chart',
+        version=version,
+        namespace='librechat',
+        values=extension_dir + '/values.yaml',
+    )
+
+    # Apply local Kubernetes manifests
+    k8s_yaml(kustomize(extension_dir + '/resources'))
+
+    k8s_resource('librechat-librechat', labels=['librechat'], port_forwards=[port + ':3080'])
+    k8s_resource('librechat-mongodb', labels=['librechat'])
+    k8s_resource('librechat-meilisearch', labels=['librechat'])
