@@ -15,5 +15,3 @@ spec:
       provider: gemini
     - name: gemini-2.5-flash
       provider: gemini
-    - name: gemini-2.0-flash
-      provider: gemini
