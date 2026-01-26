@@ -4,9 +4,9 @@ metadata:
     name: librechat-config
 data:
   librechat.yaml: |
-    version: 1.0.8
+    version: 1.2.8
 
-    cache: true
+    cache: false
 
     endpoints:
       custom:
@@ -14,7 +14,7 @@ data:
           apiKey: "not-needed"
           baseURL: "http://ai-gateway-litellm.ai-gateway:4000"
           models:
-            default: [ "gemini/gemini-2.5-flash-lite" ]
+            default: [ "" ]
             fetch: true
           titleConvo: true
           titleModel: "gemini/gemini-2.5-flash-lite"
