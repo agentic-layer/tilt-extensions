@@ -1,0 +1,47 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+load('ext://helm_resource', 'helm_resource')
+
+
+def testbench_install(version="0.2.3"):
+    """
+    Installs testbench for AI agent evaluation.
+    """
+    helm_resource(
+        'testkube',
+        'oci://docker.io/kubeshop/testkube',
+        namespace='testkube',
+        flags=['--version=2.5.3', '--create-namespace', '--values=deploy/local/testkube/values.yaml', '--wait',
+        '--wait-for-jobs', '--timeout=10m'],
+    )
+
+    install_url = "https://github.com/agentic-layer/testbench/releases/download/v%s/install.yaml" % version
+
+    wait_cmd = """
+# Apply testbench templates
+kubectl apply -f %s 1>&2
+""" % install_url
+
+    delete_cmd = [
+        "kubectl", "delete", "--ignore-not-found",
+        "-f", install_url,
+    ]
+
+    k8s_custom_deploy(
+        'testbench-templates',
+        deps=[],
+        apply_cmd="""
+set -ex
+%s
+set +e
+""" % wait_cmd,
+        delete_cmd=delete_cmd,
+    )
+
+    k8s_resource(
+        'testbench-templates',
+        labels=['testing'],
+        resource_deps=['testkube'],
+    )
