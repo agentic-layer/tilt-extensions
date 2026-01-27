@@ -88,7 +88,7 @@ def ai_gateway_litellm_instance_install():
     k8s_yaml(os.path.join(extension_dir, 'ai-gateway.yaml'))
 
     k8s_resource(
-        'ai-gateway-litellm',
+        'ai-gateway',
         labels=['agentic-layer'],
         resource_deps=['ai-gateway-litellm-operator']
     )

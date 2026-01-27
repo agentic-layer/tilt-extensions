@@ -12,7 +12,7 @@ data:
       custom:
         - name: "AI Gateway"
           apiKey: "not-needed"
-          baseURL: "http://ai-gateway-litellm.ai-gateway:4000"
+          baseURL: "http://ai-gateway.ai-gateway:4000"
           models:
             default: [ "" ]
             fetch: true
@@ -25,7 +25,7 @@ data:
 
         - name: "Agent Gateway"
           apiKey: "not-needed"
-          baseURL: "http://agent-gateway-krakend.agent-gateway-krakend:10000"
+          baseURL: "http://agent-gateway.agent-gateway:10000"
           models:
             default: [ "" ]
             fetch: true

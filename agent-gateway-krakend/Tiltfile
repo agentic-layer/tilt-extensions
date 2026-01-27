@@ -75,7 +75,7 @@ def agent_gateway_krakend_instance_install():
     k8s_yaml(os.path.join(extension_dir, 'agent-gateway.yaml'))
 
     k8s_resource(
-        'agent-gateway-krakend',
+        'agent-gateway',
         labels=['agentic-layer'],
         resource_deps=['agent-gateway-krakend-operator']
     )
