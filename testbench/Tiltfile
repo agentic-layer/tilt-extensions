@@ -1,0 +1,37 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+load('ext://helm_resource', 'helm_resource')
+
+
+def testbench_install(version="0.4.1", testkube_version="2.5.3"):
+    """
+    Installs testbench for AI agent evaluation.
+    """
+    # Get the directory of this Tiltfile to reference files relative to the extension
+    extension_dir = os.path.dirname(__file__)
+
+    helm_resource(
+        'testkube',
+        'oci://docker.io/kubeshop/testkube',
+        namespace='testkube',
+        flags=['--version=%s' % testkube_version, '--create-namespace', '--values=' + extension_dir + '/testkube/values.yaml', '--wait',
+        '--wait-for-jobs', '--timeout=10m'],
+        labels=['testbench'],
+    )
+
+    helm_resource(
+        'testbench',
+        'oci://ghcr.io/agentic-layer/charts/testbench',
+        namespace='testkube',
+        flags=['--version=%s' % version, '--values=' + extension_dir + '/values.yaml', '--wait',
+        '--wait-for-jobs', '--timeout=10m'],
+        resource_deps=['testkube'],
+        labels=['testbench'],
+    )
+
+    k8s_kind(
+        '^Test(Workflow.*|Trigger.*)$',
+        pod_readiness='ignore',
+    )
