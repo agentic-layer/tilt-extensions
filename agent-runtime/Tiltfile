@@ -31,6 +31,14 @@ def agent_runtime_install(version="0.12.0"):
 
     wait_cmd = """
 kubectl wait --for=condition=Available --timeout=300s -n agent-runtime-operator-system deployment/agent-runtime-operator-controller-manager 1>&2
+kubectl wait \
+  --for=jsonpath='{.webhooks[0].clientConfig.caBundle}' \
+  --timeout=300s \
+  mutatingwebhookconfiguration agent-runtime-operator-mutating-webhook-configuration 1>&2
+kubectl wait \
+  --for=jsonpath='{.webhooks[0].clientConfig.caBundle}' \
+  --timeout=300s \
+  validatingwebhookconfiguration agent-runtime-operator-validating-webhook-configuration 1>&2
 """
 
     delete_cmd = [
