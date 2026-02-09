@@ -29,6 +29,7 @@ def testbench_install(version="0.4.1", testkube_version="2.5.3"):
         '--wait-for-jobs', '--timeout=10m'],
         resource_deps=['testkube'],
         labels=['testbench'],
+        pod_readiness='ignore',
     )
 
     k8s_kind(
