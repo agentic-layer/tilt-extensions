@@ -2,9 +2,6 @@
 
 version_settings(constraint='>=0.23.0')
 
-# Increase the default k8s upsert timeout to accommodate CRD installations
-update_settings(k8s_upsert_timeout_secs=300)
-
 load('ext://helm_remote', 'helm_remote')
 
 def librechat_install(version="1.9.3", port='11003'):

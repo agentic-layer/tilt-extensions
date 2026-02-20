@@ -2,9 +2,6 @@
 
 version_settings(constraint='>=0.23.0')
 
-# Increase the default k8s upsert timeout to accommodate CRD installations
-update_settings(k8s_upsert_timeout_secs=300)
-
 # Configure Tilt to work with Agent Runtime Operator's custom Agent CRDs
 k8s_kind(
     '^Agent$',
