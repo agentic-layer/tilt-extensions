@@ -1,0 +1,130 @@
+# -*- mode: Python -*-
+
+version_settings(constraint='>=0.23.0')
+
+# Configure Tilt to work with Tool Gateway Operator's custom ToolGateway CRDs
+k8s_kind(
+    '^ToolGateway$',
+    pod_readiness='ignore',
+)
+
+def tool_gateway_agentgateway_install(
+    version="0.1.0",
+    gateway_api_version="1.4.1",
+    agentgateway_version="2.2.0",
+    prerequisites=True,
+    operator=True,
+    instance=True,
+):
+    if prerequisites:
+        agentgateway_install(
+            gateway_api_version=gateway_api_version,
+            agentgateway_version=agentgateway_version,
+        )
+    if operator:
+        tool_gateway_agentgateway_operator_install(
+            version=version,
+            extra_deps=['agentgateway'] if prerequisites else [],
+        )
+    if instance:
+        tool_gateway_agentgateway_instance_install()
+
+
+def agentgateway_install(gateway_api_version="1.4.1", agentgateway_version="2.2.0"):
+    """
+    Installs Gateway API CRDs, agentgateway CRDs, and agentgateway into your cluster.
+    """
+    gateway_api_url = "https://github.com/kubernetes-sigs/gateway-api/releases/download/v%s/standard-install.yaml" % gateway_api_version
+
+    k8s_custom_deploy(
+        'agentgateway',
+        deps=[],
+        apply_cmd="""
+set -ex
+kubectl apply -f {gateway_api_url} -o yaml
+helm upgrade -i agentgateway-crds \\
+    oci://ghcr.io/kgateway-dev/charts/agentgateway-crds \\
+    --namespace agentgateway-system \\
+    --version v{agentgateway_version} \\
+    --create-namespace \\
+    --wait 1>&2
+helm upgrade -i agentgateway \\
+    oci://ghcr.io/kgateway-dev/charts/agentgateway \\
+    --namespace agentgateway-system \\
+    --version v{agentgateway_version} \\
+    --wait 1>&2
+kubectl get -n agentgateway-system deployment -l app.kubernetes.io/instance=agentgateway -o yaml
+""".format(gateway_api_url=gateway_api_url, agentgateway_version=agentgateway_version),
+        delete_cmd="""
+helm uninstall agentgateway --namespace agentgateway-system 2>/dev/null || true
+helm uninstall agentgateway-crds --namespace agentgateway-system 2>/dev/null || true
+kubectl delete --ignore-not-found --wait=false -f {gateway_api_url}
+""".format(gateway_api_url=gateway_api_url),
+    )
+
+    k8s_resource(
+        'agentgateway',
+        labels=['agentic-layer'],
+    )
+
+
+def tool_gateway_agentgateway_operator_install(version, extra_deps=None):
+    """
+    Installs the tool gateway agentgateway operators into your cluster.
+    """
+
+    extra_deps = extra_deps or []
+    install_url = "https://github.com/agentic-layer/tool-gateway-agentgateway/releases/download/v%s/install.yaml"
+
+    wait_cmd = """
+kubectl wait --for=condition=Available --timeout=300s -n tool-gateway-agentgateway-system deployment/tool-gateway-agentgateway-controller-manager 1>&2
+"""
+
+    delete_cmd = [
+        "kubectl", "delete", "--ignore-not-found",
+
+        # Kubernetes is prone to deadlocks when you delete CRDs and namespaces at the same time:
+        # - The Namespace controller thinks it's responsible for deleting all resources in its namespace.
+        # - The CRD controller deletes the API routes for deleting resources.
+        # So the namespace controller blocks and eventually times out.
+        #
+        # To prevent this from slowing down 'tilt down', we do a --wait=false when deleting
+        # CRDs+Namespaces together.
+        "--wait=false",
+        "-f", install_url % version
+    ]
+
+    k8s_custom_deploy(
+        'tool-gateway-agentgateway-operator',
+        deps=[],
+        apply_cmd="""
+set -ex
+kubectl apply -f %s -o yaml
+set +e
+""" % (install_url % version) + wait_cmd,
+        delete_cmd=delete_cmd,
+    )
+
+    k8s_resource(
+        'tool-gateway-agentgateway-operator',
+        labels=['agentic-layer'],
+        resource_deps=['agent-runtime'] + extra_deps,
+    )
+
+
+def tool_gateway_agentgateway_instance_install():
+    """
+    Deploys a Tool Gateway instance into your cluster.
+    """
+
+    # Get the directory of this Tiltfile to reference files relative to the extension
+    extension_dir = os.path.dirname(__file__)
+
+    k8s_yaml(os.path.join(extension_dir, 'tool-gateway.yaml'))
+
+    k8s_resource(
+        'tool-gateway',
+        labels=['agentic-layer'],
+        resource_deps=['tool-gateway-agentgateway-operator']
+    )
+
