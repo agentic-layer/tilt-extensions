@@ -20,7 +20,7 @@ def ai_gateway_litellm_install(version="0.2.0", operator=True, instance=True):
         ai_gateway_litellm_instance_install()
 
 
-def ai_gateway_litellm_operator_install(version="0.2.0"):
+def ai_gateway_litellm_operator_install(version):
     """
     Installs the ai gateway litellm operators into your cluster.
     """
