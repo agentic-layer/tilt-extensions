@@ -23,7 +23,7 @@ k8s_kind(
     pod_readiness='ignore',
 )
 
-def agent_runtime_install(version="0.19.0"):
+def agent_runtime_install(version="0.20.3"):
     """
     Installs the agent-runtime operators into your cluster.
     """

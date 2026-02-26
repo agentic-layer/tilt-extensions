@@ -7,12 +7,17 @@ data:
     version: 1.2.8
 
     cache: false
+      
+    mcpServers:
+      tool-gateway:
+        type: streamable-http
+        url: "http://tool-gateway.tool-gateway/mcp"
 
     endpoints:
       custom:
         - name: "AI Gateway"
           apiKey: "not-needed"
-          baseURL: "http://ai-gateway.ai-gateway:4000"
+          baseURL: "http://ai-gateway.ai-gateway"
           models:
             default: [ "" ]
             fetch: true
@@ -25,7 +30,7 @@ data:
 
         - name: "Agent Gateway"
           apiKey: "not-needed"
-          baseURL: "http://agent-gateway.agent-gateway:10000"
+          baseURL: "http://agent-gateway.agent-gateway"
           models:
             default: [ "" ]
             fetch: true
