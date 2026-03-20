@@ -9,9 +9,9 @@ k8s_kind(
 )
 
 def tool_gateway_agentgateway_install(
-    version="0.2.1",
-    gateway_api_version="1.4.1",
-    agentgateway_version="2.2.0",
+    version="0.2.3",
+    gateway_api_version="1.5.0",
+    agentgateway_version="1.0.0",
     prerequisites=True,
     operator=True,
     instance=True,
@@ -30,7 +30,7 @@ def tool_gateway_agentgateway_install(
         tool_gateway_agentgateway_instance_install()
 
 
-def agentgateway_install(gateway_api_version="1.4.1", agentgateway_version="2.2.0"):
+def agentgateway_install(gateway_api_version="1.5.0", agentgateway_version="1.0.0"):
     """
     Installs Gateway API CRDs, agentgateway CRDs, and agentgateway into your cluster.
     """
@@ -43,13 +43,13 @@ def agentgateway_install(gateway_api_version="1.4.1", agentgateway_version="2.2.
 set -ex
 kubectl apply -f {gateway_api_url} -o yaml
 helm upgrade -i agentgateway-crds \\
-    oci://ghcr.io/kgateway-dev/charts/agentgateway-crds \\
+    oci://cr.agentgateway.dev/charts/agentgateway-crds \\
     --namespace agentgateway-system \\
     --version v{agentgateway_version} \\
     --create-namespace \\
     --wait 1>&2
 helm upgrade -i agentgateway \\
-    oci://ghcr.io/kgateway-dev/charts/agentgateway \\
+    oci://cr.agentgateway.dev/charts/agentgateway \\
     --namespace agentgateway-system \\
     --version v{agentgateway_version} \\
     --wait 1>&2
