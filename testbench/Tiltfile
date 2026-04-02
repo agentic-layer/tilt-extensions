@@ -4,8 +4,18 @@ version_settings(constraint='>=0.23.0')
 
 load('ext://helm_resource', 'helm_resource')
 
+k8s_kind(
+    '^Test(Workflow.*|Trigger.*)$',
+    pod_readiness='ignore',
+)
 
-def testbench_install(version="0.4.1", testkube_version="2.5.3"):
+k8s_kind(
+    '^Experiment$',
+    pod_readiness='ignore',
+)
+
+
+def testbench_install(version="0.4.1", testkube_version="2.5.3", operator=True, operator_version="0.6.0"):
     """
     Installs testbench for AI agent evaluation.
     """
@@ -21,18 +31,59 @@ def testbench_install(version="0.4.1", testkube_version="2.5.3"):
         labels=['testbench'],
     )
 
+    if operator:
+        testbench_operator_install(version=operator_version)
+
     helm_resource(
         'testbench',
         'oci://ghcr.io/agentic-layer/charts/testbench',
         namespace='testkube',
         flags=['--version=%s' % version, '--values=' + extension_dir + '/values.yaml', '--wait',
         '--wait-for-jobs', '--timeout=10m'],
-        resource_deps=['testkube'],
+        resource_deps=['testkube'] + (['testbench-operator'] if operator else []),
         labels=['testbench'],
         pod_readiness='ignore',
     )
 
-    k8s_kind(
-        '^Test(Workflow.*|Trigger.*)$',
-        pod_readiness='ignore',
+
+def testbench_operator_install(version):
+    """
+    Installs the testbench operator into your cluster.
+    """
+
+    install_url = "https://github.com/agentic-layer/testbench/releases/download/v%s/install.yaml"
+
+    wait_cmd = """
+kubectl wait --for=condition=Available --timeout=300s -n testbench-operator-system deployment/operator-controller-manager 1>&2
+"""
+
+    delete_cmd = [
+        "kubectl", "delete", "--ignore-not-found",
+
+        # Kubernetes is prone to deadlocks when you delete CRDs and namespaces at the same time:
+        # - The Namespace controller thinks it's responsible for deleting all resources in its namespace.
+        # - The CRD controller deletes the API routes for deleting resources.
+        # So the namespace controller blocks and eventually times out.
+        #
+        # To prevent this from slowing down 'tilt down', we do a --wait=false when deleting
+        # CRDs+Namespaces together.
+        "--wait=false",
+        "-f", install_url % version
+    ]
+
+    k8s_custom_deploy(
+        'testbench-operator',
+        deps=[],
+        apply_cmd="""
+set -ex
+kubectl apply -f %s -o yaml
+set +e
+""" % (install_url % version) + wait_cmd,
+        delete_cmd=delete_cmd,
+    )
+
+    k8s_resource(
+        'testbench-operator',
+        labels=['testbench'],
+        resource_deps=['testkube'],
     )
