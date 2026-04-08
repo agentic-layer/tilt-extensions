@@ -11,7 +11,7 @@ k8s_kind(
 def tool_gateway_agentgateway_install(
     version="0.2.3",
     gateway_api_version="1.5.0",
-    agentgateway_version="1.0.0",
+    agentgateway_version="1.0.1",
     prerequisites=True,
     operator=True,
     instance=True,
@@ -30,7 +30,7 @@ def tool_gateway_agentgateway_install(
         tool_gateway_agentgateway_instance_install()
 
 
-def agentgateway_install(gateway_api_version="1.5.0", agentgateway_version="1.0.0"):
+def agentgateway_install(gateway_api_version, agentgateway_version):
     """
     Installs Gateway API CRDs, agentgateway CRDs, and agentgateway into your cluster.
     """
