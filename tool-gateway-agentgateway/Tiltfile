@@ -9,7 +9,7 @@ k8s_kind(
 )
 
 def tool_gateway_agentgateway_install(
-    version="0.2.3",
+    version="0.2.4",
     gateway_api_version="1.5.0",
     agentgateway_version="1.0.1",
     prerequisites=True,
