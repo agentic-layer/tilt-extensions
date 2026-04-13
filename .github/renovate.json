@@ -86,9 +86,8 @@
       "matchStrings": [
         "agentgateway_version=\"(?<currentValue>[^\"]+)\""
       ],
-      "depNameTemplate": "charts/agentgateway",
-      "registryUrlTemplate": "https://cr.agentgateway.dev",
-      "datasourceTemplate": "docker",
+      "depNameTemplate": "agentgateway/agentgateway",
+      "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.*)$"
     },
     {
