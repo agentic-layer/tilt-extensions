@@ -13,7 +13,7 @@ k8s_kind(
     pod_readiness='wait',
 )
 
-def ai_gateway_litellm_install(version="0.5.0", operator=True, instance=True):
+def ai_gateway_litellm_install(version="0.8.2", operator=True, instance=True):
     if operator:
         ai_gateway_litellm_operator_install(version=version)
     if instance:
