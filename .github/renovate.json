@@ -1,0 +1,127 @@
+{
+  "extends": [
+    "github>agentic-layer/renovate-config"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "agent-runtime operator version in Tiltfile",
+      "managerFilePatterns": ["/agent-runtime/Tiltfile$/"],
+      "matchStrings": [
+        "def agent_runtime_install\\(version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "agentic-layer/agent-runtime-operator",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "cert-manager version in Tiltfile",
+      "managerFilePatterns": ["/cert-manager/Tiltfile$/"],
+      "matchStrings": [
+        "def cert_manager_install\\(version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "cert-manager/cert-manager",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "LibreChat helm chart version in Tiltfile",
+      "managerFilePatterns": ["/librechat/Tiltfile$/"],
+      "matchStrings": [
+        "def librechat_install\\(version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "danny-avila/librechat-chart",
+      "registryUrlTemplate": "https://ghcr.io",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "ai-gateway-litellm operator version in Tiltfile",
+      "managerFilePatterns": ["/ai-gateway-litellm/Tiltfile$/"],
+      "matchStrings": [
+        "def ai_gateway_litellm_install\\(version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "agentic-layer/ai-gateway-litellm-operator",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "agent-gateway-krakend operator version in Tiltfile",
+      "managerFilePatterns": ["/agent-gateway-krakend/Tiltfile$/"],
+      "matchStrings": [
+        "def agent_gateway_krakend_install\\(version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "agentic-layer/agent-gateway-krakend-operator",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "tool-gateway-agentgateway operator version in Tiltfile",
+      "managerFilePatterns": ["/tool-gateway-agentgateway/Tiltfile$/"],
+      "matchStrings": [
+        "def tool_gateway_agentgateway_install\\(\\s+version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "agentic-layer/tool-gateway-agentgateway",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Gateway API version in Tiltfile",
+      "managerFilePatterns": ["/tool-gateway-agentgateway/Tiltfile$/"],
+      "matchStrings": [
+        "gateway_api_version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "kubernetes-sigs/gateway-api",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "agentgateway helm chart version in Tiltfile",
+      "managerFilePatterns": ["/tool-gateway-agentgateway/Tiltfile$/"],
+      "matchStrings": [
+        "agentgateway_version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "charts/agentgateway",
+      "registryUrlTemplate": "https://cr.agentgateway.dev",
+      "datasourceTemplate": "docker",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "testbench helm chart version in Tiltfile",
+      "managerFilePatterns": ["/testbench/Tiltfile$/"],
+      "matchStrings": [
+        "def testbench_install\\(version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "agentic-layer/testbench",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "testkube helm chart version in Tiltfile",
+      "managerFilePatterns": ["/testbench/Tiltfile$/"],
+      "matchStrings": [
+        "testkube_version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "kubeshop/testkube",
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "testbench operator version in Tiltfile",
+      "managerFilePatterns": ["/testbench/Tiltfile$/"],
+      "matchStrings": [
+        "operator_version=\"(?<currentValue>[^\"]+)\""
+      ],
+      "depNameTemplate": "agentic-layer/testbench",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    }
+  ]
+}
