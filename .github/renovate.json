@@ -31,7 +31,7 @@
       "matchStrings": [
         "def librechat_install\\(version=\"(?<currentValue>[^\"]+)\""
       ],
-      "depNameTemplate": "danny-avila/librechat-chart",
+      "depNameTemplate": "danny-avila/librechat-chart/librechat",
       "registryUrlTemplate": "https://ghcr.io",
       "datasourceTemplate": "docker"
     },
