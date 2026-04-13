@@ -40,6 +40,8 @@ kubectl wait \
   --for=jsonpath='{.webhooks[0].clientConfig.caBundle}' \
   --timeout=300s \
   validatingwebhookconfiguration agent-runtime-operator-validating-webhook-configuration 1>&2
+# Add some extra delay to allow for the webhook to get ready
+sleep 5s
 """
 
     delete_cmd = [
