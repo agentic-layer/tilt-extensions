@@ -15,7 +15,7 @@ k8s_kind(
 )
 
 
-def testbench_install(version="0.8.2", testkube_version="2.8.3", operator=True, operator_version="0.8.2"):
+def testbench_install(version="0.8.2", testkube_version="2.8.3", operator=True):
     """
     Installs testbench for AI agent evaluation.
     """
@@ -32,7 +32,7 @@ def testbench_install(version="0.8.2", testkube_version="2.8.3", operator=True, 
     )
 
     if operator:
-        testbench_operator_install(version=operator_version)
+        testbench_operator_install(version=version)
 
     helm_resource(
         'testbench',
