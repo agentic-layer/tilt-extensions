@@ -15,6 +15,10 @@ k8s_kind(
     pod_readiness='wait',
 )
 k8s_kind(
+    '^ToolRoute$',
+    pod_readiness='ignore',
+)
+k8s_kind(
     '^AgenticWorkforce$',
     pod_readiness='ignore',
 )
@@ -23,7 +27,7 @@ k8s_kind(
     pod_readiness='ignore',
 )
 
-def agent_runtime_install(version="0.27.1"):
+def agent_runtime_install(version="0.28.0-rc.1"):
     """
     Installs the agent-runtime operators into your cluster.
     """
